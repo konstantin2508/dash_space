@@ -131,6 +131,7 @@ app.layout = html.Div(
 # Изменяем график по ползунку
 @app.callback(
     Output(component_id='dist-temp-chart', component_property='figure'),
+    Output(component_id='celestial-chart', component_property='figure'),
     [Input(component_id='submit-val', component_property='n_clicks')],      # создаем колбэк для кнопки обновления
     [State(component_id='range-slider', component_property='value'),
     State(component_id='star-selector', component_property='value')]    
@@ -139,19 +140,20 @@ app.layout = html.Div(
 )
 def update_dist_temp_chart(n, radius_range, star_size):
     chart_data = df[(df['RPLANET'] > radius_range[0]) & (df['RPLANET'] < radius_range[1]) & (df['StarSize'].isin(star_size))]
-    fig = px.scatter(chart_data, x='TPLANET', y='A', color='StarSize')
-    return fig
+    fig_1 = px.scatter(chart_data, x='TPLANET', y='A', color='StarSize')
+    fig_2 = px.scatter(chart_data, x='RA', y='DEC', size='RPLANET', color='status')
+    return fig_1, fig_2
 
 
-@app.callback(
-    Output(component_id='celestial-chart', component_property='figure'),
-    [Input(component_id='range-slider', component_property='value'),
-    Input(component_id='star-selector', component_property='value')]
-)
-def update_celestial_chart(radius_range, star_size):
-    chart_data = df[(df['RPLANET'] > radius_range[0]) & (df['RPLANET'] < radius_range[1]) & (df['StarSize'].isin(star_size))]
-    fig = px.scatter(chart_data, x='RA', y='DEC', size='RPLANET', color='status')
-    return fig
+# @app.callback(
+#     Output(component_id='celestial-chart', component_property='figure'),
+#     [Input(component_id='range-slider', component_property='value'),
+#     Input(component_id='star-selector', component_property='value')]
+# )
+# def update_celestial_chart(radius_range, star_size):
+#     chart_data = df[(df['RPLANET'] > radius_range[0]) & (df['RPLANET'] < radius_range[1]) & (df['StarSize'].isin(star_size))]
+#     fig = px.scatter(chart_data, x='RA', y='DEC', size='RPLANET', color='status')
+#     return fig
 
 
 if __name__ == '__main__':
