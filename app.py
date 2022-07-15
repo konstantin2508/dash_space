@@ -98,13 +98,15 @@ app.layout = html.Div(
             style={'margin-bottom': 40}),
         dbc.Row([
             dbc.Col([
-                html.Div('Planet Temperature-Distance from the Star'),      # Добавляем первый график
-                dcc.Graph(id='dist-temp-chart')  
+                html.Div(id='dist-temp-chart')
+                # html.Div('Planet Temperature-Distance from the Star'),      # Добавляем первый график
+                # dcc.Graph(id='dist-temp-chart')  
             ],
             width={'size': 6}),
             dbc.Col([
-                html.Div('Position on the Celestial Sphere'),       # Добавляем второй график
-                dcc.Graph(id='celestial-chart')
+                html.Div(id='celestial-chart')
+                # html.Div('Position on the Celestial Sphere'),       # Добавляем второй график
+                # dcc.Graph(id='celestial-chart')
             ])
         ],
         style={'margin-bottom': 40})
@@ -130,8 +132,8 @@ app.layout = html.Div(
 
 # Изменяем график по ползунку
 @app.callback(
-    Output(component_id='dist-temp-chart', component_property='figure'),
-    Output(component_id='celestial-chart', component_property='figure'),
+    Output(component_id='dist-temp-chart', component_property='children'),
+    Output(component_id='celestial-chart', component_property='children'),
     [Input(component_id='submit-val', component_property='n_clicks')],      # создаем колбэк для кнопки обновления
     [State(component_id='range-slider', component_property='value'),
     State(component_id='star-selector', component_property='value')]    
@@ -139,10 +141,22 @@ app.layout = html.Div(
     # Input(component_id='star-selector', component_property='value')]
 )
 def update_dist_temp_chart(n, radius_range, star_size):
-    chart_data = df[(df['RPLANET'] > radius_range[0]) & (df['RPLANET'] < radius_range[1]) & (df['StarSize'].isin(star_size))]
+    chart_data = df[(df['RPLANET'] > radius_range[0]) & 
+                    (df['RPLANET'] < radius_range[1]) & 
+                    (df['StarSize'].isin(star_size))]
+    
+    if len(chart_data) == 0:
+        return html.Div('Please select more data'), html.Div()
+    
     fig_1 = px.scatter(chart_data, x='TPLANET', y='A', color='StarSize')
+    html1 = [html.Div('Planet Temperature-Distance from the Star'),
+             dcc.Graph(figure=fig_1)]
+    
     fig_2 = px.scatter(chart_data, x='RA', y='DEC', size='RPLANET', color='status')
-    return fig_1, fig_2
+    html2 = [html.Div('Position on the Celestial Sphere'),
+             dcc.Graph(figure=fig_2)]
+    
+    return html1, html2
 
 
 # @app.callback(
